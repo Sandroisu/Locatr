@@ -1,14 +1,45 @@
 package com.example.locatr;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
-public class LocatrActivity extends AppCompatActivity {
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
+public class LocatrActivity extends SingleFragmentActivity {
+    private static final int REQUEST_ERROR = 0;
+
+    @Override
+    protected Fragment createFragment() {
+        return LocatrFragment.newInstance();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragment);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int errorCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (errorCode != ConnectionResult.SUCCESS) {
+            Dialog errorDialog = apiAvailability
+                    .getErrorDialog(this, errorCode, REQUEST_ERROR,
+                            new DialogInterface.OnCancelListener() {
+                                @Override
+                                //Настройка Google Play Services 643
+                                public void onCancel(DialogInterface dialog) {
+// Выйти, если сервис недоступен.
+                                    finish();
+                                }
+                            });
+            errorDialog.show();
+        }
     }
 }
